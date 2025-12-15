@@ -1,0 +1,12 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/Gmust/mock-device-front.git
+[submodule "backend-api"]
+	path = backend-api
+	url = https://github.com/Gmust/fitband-api.git
+[submodule "mqtt-broker"]
+	path = mqtt-broker
+	url = https://github.com/Kushlak/fitband-mqtt-broker.git
+[submodule "postgres-vm"]
+	path = postgres-vm
+	url = https://github.com/Gmust/fitband-postrges-vm.git

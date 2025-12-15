@@ -7,10 +7,22 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies (all repos)
 node_modules
+**/node_modules
+
+# Build outputs (all repos)
 dist
 dist-ssr
+**/dist
+**/dist-ssr
+
+# Environment files
 *.local
+.env
+**/.env
+**/env.dev
+**/env.prod
 
 # Editor directories and files
 .vscode/*
@@ -23,4 +35,12 @@ dist-ssr
 *.sln
 *.sw?
 
-.env
+# Prisma
+**/.prisma
+**/prisma/migrations
+
+# Terraform
+**/.terraform
+**/*.tfstate
+**/*.tfstate.backup
+**/.terraform.lock.hcl

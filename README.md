@@ -1,220 +1,206 @@
-# Mock Fitband Device Frontend
+# Fitband Monorepo
 
-A React + TypeScript frontend application for monitoring and simulating IoT fitness band devices.
+A monorepo containing all Fitband IoT project components: frontend, backend API, MQTT broker, and infrastructure setup.
 
-## Features
+## Repository Structure
 
-- **Authentication**: User registration and login with JWT tokens
-- **Device Management**: View all devices and your personal device
-- **Telemetry Simulation**: Generate and send simulated telemetry data via WebSocket
-- **Real-time Communication**: WebSocket connection for bidirectional device communication
-- **Protected Routes**: Automatic redirect to login for unauthorized access
+**Note:** This monorepo uses git submodules. All components are separate repositories linked as submodules.
 
-## Tech Stack
+```
+fitband-monorepo/
+├── frontend/                 # Frontend React application (git submodule)
+│   ├── src/                 # Frontend source code
+│   ├── public/              # Frontend static assets
+│   └── package.json         # Frontend dependencies
+├── backend-api/             # NestJS REST API (git submodule)
+│   ├── src/                 # API source code
+│   ├── prisma/              # Database schema
+│   ├── scripts/              # Deployment scripts
+│   └── docs/                # API documentation
+├── mqtt-broker/             # MQTT/WebSocket broker (git submodule)
+└── postgres-vm/             # PostgreSQL VM setup (git submodule)
+```
 
-- **React 19**: UI framework
-- **TypeScript**: Type safety
-- **TanStack Router**: File-based routing with type-safe navigation
-- **Axios**: HTTP client
-- **Socket.IO Client**: WebSocket communication
-- **Tailwind CSS**: Styling
-- **Vite**: Build tool
+## Components
 
-## Prerequisites
+### 1. Frontend (`frontend/`)
 
-- Node.js 18+
-- Running instance of mock-fitband-api (backend)
-- Optional: Running instance of fitband-mqtt-broker (for WebSocket)
+React + TypeScript frontend application for monitoring and simulating IoT fitness band devices.
 
-## Getting Started
+**Repository:** [mock-device-front](https://github.com/Gmust/mock-device-front)
 
-### 1. Install dependencies
+**Tech Stack:**
+
+- React 19
+- TypeScript
+- TanStack Router
+- Vite
+- Tailwind CSS
+
+**Quick Start:**
 
 ```bash
+cd frontend
 npm install
-```
-
-### 2. Configure environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your API endpoints:
-
-**Development:**
-
-```
-VITE_API_BASE_URL=http://localhost:3000
-VITE_WS_URL=http://localhost:3001
-```
-
-**Production:**
-
-```
-VITE_API_BASE_URL=https://fitband-broker.duckdns.org
-VITE_WS_URL=https://fitband-broker.duckdns.org
-```
-
-**Note:** For production, ensure your server has a valid SSL certificate. The domain must be properly configured in DNS.
-
-### 3. Start development server
-
-```bash
 npm run dev
 ```
 
-The app will be available at http://localhost:5173
+See `frontend/README.md` for detailed frontend documentation.
 
-## Project Structure
+### 2. Backend API (`backend-api/`)
 
-```
-src/
-├── routes/                 # TanStack Router pages
-│   ├── __root.tsx         # Root layout with navigation
-│   ├── index.tsx          # Home page
-│   ├── auth.login.tsx     # Login page
-│   ├── auth.register.tsx  # Register page
-│   ├── profile.tsx        # User profile (protected)
-│   ├── devices.index.tsx  # Devices list (protected)
-│   └── devices.$deviceId.tsx # Device detail with simulation (protected)
-├── services/              # API and business logic
-│   ├── api.ts            # HTTP client and API endpoints
-│   ├── auth.ts           # Authentication service
-│   ├── telemetry.ts      # Telemetry data generator
-│   └── websocket.ts      # WebSocket service
-├── types/                # TypeScript type definitions
-│   └── index.ts
-└── main.tsx              # Application entry point
-```
+NestJS-based REST API for IoT fitness band telemetry data management.
 
-## Features in Detail
+**Repository:** [fitband-api](https://github.com/Gmust/fitband-api)
 
-### Authentication
+**Tech Stack:**
 
-- **Register**: Create a new user account
-- **Login**: Sign in with email and password
-- **Token Management**: JWT token stored in localStorage
-- **Auto-redirect**: Unauthenticated users redirected to login
+- NestJS
+- PostgreSQL with Prisma ORM
+- Docker
+- Swagger/OpenAPI
 
-### Device Simulation
-
-The device detail page (`/devices/:deviceId`) provides:
-
-- **WebSocket Connection**: Real-time bidirectional communication
-- **Telemetry Generation**: Simulated sensor data (heart rate, steps, battery, motion)
-- **Configurable Interval**: Adjust telemetry sending frequency
-- **Live Logs**: View sent telemetry and received commands
-- **Device State**: Monitor battery, steps, and session status
-
-### Telemetry Data Structure
-
-```typescript
-{
-  deviceId: string;
-  timestamp: string;
-  messageId: string;
-  metrics: {
-    heartRate: number; // 60-180 bpm
-    stepsDelta: number; // 0-10 steps per reading
-    caloriesDelta: number; // calculated from steps
-    battery: number; // 0.05-0.95 (5%-95%)
-  }
-  motion: {
-    ax: number; // accelerometer x
-    ay: number; // accelerometer y
-    az: number; // accelerometer z
-  }
-}
-```
-
-### Commands
-
-The device can receive commands from the backend:
-
-- `startSession`: Begin activity tracking session
-- `stopSession`: End activity tracking session
-- `vibrate`: Trigger device vibration (with duration)
-
-## API Integration
-
-### REST API Endpoints
-
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login user
-- `POST /auth/profile` - Get user profile (requires auth)
-- `GET /devices` - List all devices
-- `GET /devices/my-device` - Get current user's device (requires auth)
-- `GET /devices/:id` - Get specific device
-
-### WebSocket Events
-
-**Emit:**
-
-- `join`: Join device room with device ID
-- `telemetry`: Send telemetry data
-
-**Listen:**
-
-- `connect`: Connection established
-- `disconnect`: Connection closed
-- `command`: Receive command from backend
-
-## Development
-
-### Build for production
+**Quick Start:**
 
 ```bash
-npm run build
+cd backend-api
+npm install
+npm run start:dev
 ```
 
-### Preview production build
+See `backend-api/README.md` for detailed API documentation.
+
+### 3. MQTT Broker (`mqtt-broker/`)
+
+MQTT broker and WebSocket server for real-time device communication.
+
+**Repository:** [fitband-mqtt-broker](https://github.com/Kushlak/fitband-mqtt-broker)
+
+**Tech Stack:**
+
+- NestJS
+- MQTT
+- WebSocket
+- Docker
+
+**Quick Start:**
 
 ```bash
-npm run preview
+cd mqtt-broker
+npm install
+npm run start:dev
 ```
 
-### Lint code
+See `mqtt-broker/README.md` for detailed documentation.
+
+### 4. PostgreSQL VM (`postgres-vm/`)
+
+Infrastructure setup scripts for PostgreSQL database on VM.
+
+**Repository:** [fitband-postrges-vm](https://github.com/Gmust/fitband-postrges-vm)
+
+**Quick Start:**
 
 ```bash
-npm run lint
+cd postgres-vm
+./setup.sh
+```
+
+See `postgres-vm/README.md` for detailed documentation.
+
+## Development Workflow
+
+### Initial Setup
+
+1. **Clone the repository with submodules:**
+
+   ```bash
+   git clone --recurse-submodules <monorepo-url>
+   cd fitband-monorepo
+   ```
+
+   Or if you already cloned without submodules:
+
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+2. **Setup Frontend:**
+
+   ```bash
+   cd frontend
+   npm install
+   cp .env.example .env  # if .env.example exists
+   ```
+
+3. **Setup Backend API:**
+
+   ```bash
+   cd backend-api
+   npm install
+   cp env.example .env
+   npm run migrate:dev
+   ```
+
+4. **Setup MQTT Broker:**
+   ```bash
+   cd infrastructure/mqtt-broker
+   npm install
+   cp env.example .env
+   ```
+
+### Running All Services
+
+**Terminal 1 - Frontend:**
+
+```bash
+cd frontend
+npm run dev
+```
+
+**Terminal 2 - Backend API:**
+
+```bash
+cd backend-api
+npm run start:dev
+```
+
+**Terminal 3 - MQTT Broker:**
+
+```bash
+cd mqtt-broker
+npm run start:dev
 ```
 
 ## Environment Variables
 
-| Variable            | Description          | Default                 |
-| ------------------- | -------------------- | ----------------------- |
-| `VITE_API_BASE_URL` | Backend REST API URL | `http://localhost:3000` |
-| `VITE_WS_URL`       | WebSocket server URL | `http://localhost:3001` |
+Each component has its own `.env` file. Copy the example files:
 
-## Troubleshooting
+- `frontend/.env.example` → `frontend/.env` (if exists)
+- `backend-api/env.example` → `backend-api/.env`
+- `mqtt-broker/env.example` → `mqtt-broker/.env`
+- `postgres-vm/env.example` → `postgres-vm/.env`
 
-### "Network Error" on API calls
+## Docker Development
 
-- Ensure backend API is running on the configured port
-- Check CORS settings in backend
-- Verify `VITE_API_BASE_URL` in `.env`
+Each component can be run with Docker:
 
-### WebSocket not connecting
+```bash
+# Backend API
+cd backend-api
+docker-compose up -d
 
-- Ensure MQTT broker is running on the configured port
-- Check `VITE_WS_URL` in `.env`
-- Verify WebSocket path is `/ws` in backend
-- For HTTPS/WSS connections, ensure SSL certificate is valid
-- Check browser console for detailed connection errors
-- Verify DNS resolution if using domain name (e.g., `fitband-broker.duckdns.org`)
+# MQTT Broker
+cd infrastructure/mqtt-broker
+docker-compose up -d
+```
 
-### Protected routes redirecting to login
+## Project Links
 
-- This is expected behavior when not authenticated
-- Login to access protected pages
-- Check browser localStorage for `token` and `user` keys
-
-## Related Projects
-
-- [mock-fitband-api](../mock-fitband-api) - Backend REST API
-- [fitband-mqtt-broker](../fitband-mqtt-broker) - WebSocket/MQTT broker
-- [mock-fitband-simulator](../mock-fitband-simulator) - CLI device simulator
+- **Frontend**: [mock-device-front](https://github.com/Gmust/mock-device-front)
+- **Backend API**: [fitband-api](https://github.com/Gmust/fitband-api)
+- **MQTT Broker**: [fitband-mqtt-broker](https://github.com/Kushlak/fitband-mqtt-broker)
+- **PostgreSQL VM**: [fitband-postrges-vm](https://github.com/Gmust/fitband-postrges-vm)
 
 ## License
 
